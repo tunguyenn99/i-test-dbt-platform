@@ -1,0 +1,390 @@
+title: Xom Arcade Research Board
+notes: >
+  Full market research board covering the 15 Xom Arcade stakeholder questions.
+  Review counts are used as the popularity proxy and price is used as the
+  monetization proxy because the source has no transaction or revenue data.
+source: analytics
+
+variables:
+  keyword:
+    input: text
+    default: puzzle
+    notes: Search term applied case-insensitively to game descriptions for Q10.
+
+queries:
+  catalog_kpis:
+    sql: |
+      select
+        count(*) as game_count,
+        round(avg(average_user_rating), 2) as average_rating,
+        sum(user_rating_count) as total_review_count,
+        round(avg(size_mb), 2) as average_size_mb
+      from analytics_gold.fct_games
+    notes: Single-row catalog KPIs for the executive tab.
+
+  monetization_mix:
+    sql: |
+      select monetization_type, game_count, game_share_percent / 100.0 as game_share_ratio,
+             average_rating, average_review_count, total_review_count
+      from analytics_plat.mart_monetization_mix
+      order by monetization_type
+    notes: Q1 free versus paid game counts, shares, ratings, and review volume.
+
+  genre_performance:
+    sql: |
+      select primary_genre, game_count, average_rating,
+             average_rating_count, total_rating_count, average_size_mb,
+             average_price_usd
+      from analytics_plat.mart_genre_performance
+      order by total_rating_count desc
+    notes: Q3 and Q8 genre rating, review, size, and price benchmarks.
+
+  top_developers:
+    sql: |
+      select developer, game_count, average_rating, total_rating_count,
+             average_size_mb, first_release_date, latest_release_date
+      from analytics_plat.mart_developer_benchmarks
+      order by game_count desc, total_rating_count desc
+      limit 10
+    notes: Q2 top 10 developers by catalog size.
+
+  price_distribution:
+    sql: |
+      select price_bucket, game_count, game_share_percent / 100.0 as game_share_ratio
+      from analytics_plat.mart_price_distribution
+      order by case price_bucket
+        when '0 (free)' then 1
+        when '0-1 USD' then 2
+        when '1-5 USD' then 3
+        when '5-20 USD' then 4
+        else 5
+      end
+    notes: Q5 price buckets with count and catalog share.
+
+  games_2019:
+    sql: |
+      select primary_genre, game_count, average_rating, total_review_count
+      from analytics_plat.mart_games_2019
+      order by game_count desc
+    notes: Q4 games released during 2019 by primary genre.
+
+  release_yearly:
+    sql: |
+      select release_year, game_count, average_rating,
+             total_review_count, game_count_growth_percent
+      from analytics_plat.mart_release_yearly
+      order by release_year
+    notes: Q12 annual release volume, average rating, and year-over-year growth.
+
+  age_rating_genre:
+    sql: |
+      select age_rating, primary_genre, game_count
+      from analytics_plat.mart_age_rating_genre
+    notes: Q7 game count matrix by age rating and primary genre.
+
+  language_benchmarks:
+    sql: |
+      select primary_genre, game_count, average_language_count,
+             max_language_count
+      from analytics_plat.mart_genre_language_benchmarks
+      order by average_language_count desc
+    notes: Q9 average supported language count by primary genre.
+
+  high_rated_games:
+    sql: |
+      select rating_rank, game_name, primary_genre, developer,
+             average_user_rating, user_rating_count, price_usd, release_date
+      from analytics_plat.mart_high_rated_games
+      order by rating_rank
+    notes: Q6 top 20 rated games with at least 100 user reviews.
+
+  top_games_by_genre:
+    sql: |
+      select primary_genre, genre_rank, game_name, developer,
+             average_user_rating, user_rating_count, release_date
+      from analytics_plat.mart_top_games_by_genre
+      order by primary_genre, genre_rank
+    notes: Q11 top three rated games per genre with at least 100 user reviews.
+
+  developer_consistency:
+    sql: |
+      select developer, game_count, average_rating, rating_stddev,
+             percent_games_rating_4_plus, total_review_count
+      from analytics_plat.mart_developer_consistency
+      order by rating_stddev asc nulls last, total_review_count desc
+      limit 25
+    notes: Q13 developers with at least three games ranked by rating consistency.
+
+  size_rating_buckets:
+    sql: |
+      select size_bucket, game_count, average_size_mb, average_rating,
+             average_review_count
+      from analytics_plat.mart_size_rating_buckets
+      order by case size_bucket
+        when 'Small (<50 MB)' then 1
+        when 'Medium (50-200 MB)' then 2
+        else 3
+      end
+    notes: Q14 average rating by small, medium, and large game size bucket.
+
+  genre_tags:
+    sql: |
+      select genre_tag, game_count, tag_share_percent
+      from analytics_plat.mart_genre_tags
+      order by game_count desc, genre_tag
+    notes: Q15 top 15 tags from the multi-valued genres field.
+
+  description_search:
+    sql: |
+      select app_id, game_name, primary_genre, developer,
+             average_user_rating, user_rating_count, release_date
+      from analytics_plat.mart_description_search
+      where description ilike '%' || '{{ keyword }}' || '%'
+      order by user_rating_count desc nulls last,
+           average_user_rating desc nulls last,
+           game_name
+      limit 20
+    notes: Q10 case-insensitive description search controlled by keyword.
+
+charts:
+  game_count_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Games in catalog
+    value: game_count
+    notes: Headline catalog size KPI.
+    style:
+      value:
+        format: integer
+
+  average_rating_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Average user rating
+    value: average_rating
+    notes: Average rating across usable catalog records.
+    style:
+      value:
+        format: number
+
+  total_reviews_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Total review count
+    value: total_review_count
+    notes: Popularity proxy across the catalog.
+    style:
+      value:
+        format: integer
+
+  free_paid_mix:
+    type: bar
+    query: monetization_mix
+    title: Free versus paid catalog share
+    x: monetization_type
+    y: game_share_ratio
+    notes: Q1 percentage of free and paid games.
+    style:
+      number_format: percent
+
+  genre_rating:
+    type: bar
+    query: genre_performance
+    title: Average rating by genre
+    x: primary_genre
+    y: average_rating
+    notes: Q3 average user rating benchmark by primary genre.
+
+  genre_reviews:
+    type: bar
+    query: genre_performance
+    title: Review count by genre
+    x: primary_genre
+    y: total_rating_count
+    notes: Q3 popularity proxy by primary genre.
+    style:
+      number_format: integer
+
+  top_developers_chart:
+    type: bar
+    query: top_developers
+    title: Top 10 developers by game count
+    x: developer
+    y: game_count
+    notes: Q2 most prolific developer portfolios.
+    style:
+      number_format: integer
+
+  price_buckets:
+    type: bar
+    query: price_distribution
+    title: Game price distribution
+    x: price_bucket
+    y: game_share_ratio
+    notes: Q5 price bands as a share of the catalog.
+    style:
+      number_format: percent
+
+  releases_2019:
+    type: bar
+    query: games_2019
+    title: Games released in 2019 by genre
+    x: primary_genre
+    y: game_count
+    notes: Q4 studio output during 2019.
+    style:
+      number_format: integer
+
+  release_trend:
+    type: line
+    query: release_yearly
+    title: Releases by year
+    x: release_year
+    y: game_count
+    notes: Q12 annual release volume trend.
+    style:
+      number_format: integer
+
+  rating_trend:
+    type: line
+    query: release_yearly
+    title: Average rating by release year
+    x: release_year
+    y: average_rating
+    notes: Q12 annual quality trend, kept on its own axis from release volume.
+
+  age_genre_matrix:
+    type: heatmap
+    query: age_rating_genre
+    x: primary_genre
+    y: age_rating
+    color: game_count
+    notes: Q7 age rating by genre composition matrix.
+
+  language_by_genre:
+    type: bar
+    query: language_benchmarks
+    title: Average languages supported by genre
+    x: primary_genre
+    y: average_language_count
+    notes: Q9 localization breadth benchmark.
+
+  size_rating:
+    type: bar
+    query: size_rating_buckets
+    title: Rating by game size
+    x: size_bucket
+    y: average_rating
+    notes: Q14 descriptive comparison of size buckets and ratings.
+
+  genre_tags_chart:
+    type: bar
+    query: genre_tags
+    title: Top 15 genre tags
+    x: genre_tag
+    y: game_count
+    notes: Q15 counts all tags in the multi-valued genres field.
+    style:
+      number_format: integer
+
+  high_rated_table:
+    type: table
+    query: high_rated_games
+    title: Top rated games with meaningful review volume
+    notes: Q6 detail table using the 100-review threshold.
+    style:
+      columns:
+        average_user_rating:
+          format: number
+        user_rating_count:
+          format: integer
+        price_usd:
+          format: currency
+
+  top_games_genre_table:
+    type: table
+    query: top_games_by_genre
+    title: Top three games in each genre
+    notes: Q11 ranked detail table.
+    style:
+      columns:
+        average_user_rating:
+          format: number
+        user_rating_count:
+          format: integer
+
+  developer_consistency_table:
+    type: table
+    query: developer_consistency
+    title: Consistent developer portfolios
+    notes: Q13 lowest rating standard deviation among developers with at least three games and three rated games.
+    style:
+      columns:
+        average_rating:
+          format: number
+        rating_stddev:
+          format: number
+        percent_games_rating_4_plus:
+          format: percent_number
+        total_review_count:
+          format: integer
+
+  description_search_table:
+    type: table
+    query: description_search
+    title: Games matching description keyword
+    notes: Q10 result list for the selected keyword.
+    style:
+      columns:
+        app_id:
+          format: integer
+        average_user_rating:
+          format: number
+        user_rating_count:
+          format: integer
+        release_date:
+          format: date_short
+
+  genre_benchmark_table:
+    type: table
+    query: genre_performance
+    title: Genre benchmark detail
+    notes: Combined Q3 and Q8 benchmark table for exact values.
+    style:
+      columns:
+        game_count:
+          format: integer
+        average_rating:
+          format: number
+        average_rating_count:
+          format: integer
+        total_rating_count:
+          format: integer
+        average_size_mb:
+          format: number
+        average_price_usd:
+          format: currency
+
+tabs:
+  items:
+    - title: Executive
+      rows:
+        - cols: [game_count_kpi, average_rating_kpi, total_reviews_kpi]
+        - cols: [free_paid_mix, price_buckets]
+        - cols: [genre_rating, genre_reviews]
+    - title: Market and Portfolio
+      rows:
+        - cols: [top_developers_chart, releases_2019]
+        - cols: [language_by_genre, genre_tags_chart]
+        - genre_benchmark_table
+        - developer_consistency_table
+    - title: Quality and Trends
+      rows:
+        - cols: [release_trend, rating_trend]
+        - cols: [size_rating, age_genre_matrix]
+        - high_rated_table
+        - top_games_genre_table
+    - title: Search
+      rows:
+        - text: "Q10 description search. Current keyword: **{{ keyword }}**"
+        - description_search_table
