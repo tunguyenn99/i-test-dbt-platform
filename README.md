@@ -39,6 +39,54 @@ DBT_PROFILES_DIR="$PWD" dbt debug
 DBT_PROFILES_DIR="$PWD" dbt build
 ```
 
+## Visual walkthrough
+
+### 1. Configure the source
+
+The source is the Xom Dataset SQL Server database and the replicated table is
+`mobile_games.games`.
+
+![SQL Server source setup](images/source-sql-server-setup.png)
+
+![Fivetran source sync options](images/source-sql-server-sync-option.png)
+
+![Fivetran source sync result](images/source-sql-server-sync-result.png)
+
+### 2. Configure the destination
+
+Fivetran writes to the existing Supabase `postgres` database using the
+`mobile_games` schema and the IPv4-compatible Session Pooler connection.
+
+![Supabase destination schema](images/dest-postgres-schema.png)
+
+![Supabase destination result](images/dest-postgres-result.png)
+
+### 3. Explore dbt Charts
+
+The project contains a full research board with Executive, Market and
+Portfolio, Quality and Trends, and Search tabs.
+
+![dbt Charts project directory](images/dct-directory.png)
+
+![Research board executive view](images/dct-dashboard-demo-p1.png)
+
+![Research board market view](images/dct-dashboard-demo-p2.png)
+
+![Research board quality view](images/dct-dashboard-demo-p3.png)
+
+![Research board search view](images/dct-dashboard-demo-p4.png)
+
+### 4. Generate dbt Docs
+
+Generate and serve the model catalog and lineage documentation with:
+
+```sh
+DBT_PROFILES_DIR="$PWD" dbt docs generate
+DBT_PROFILES_DIR="$PWD" dbt docs serve --port 8080
+```
+
+![Generated dbt Docs](images/dbt-docs-generate.png)
+
 ## dbt Charts
 
 `dct init --yes` initialized `dbt_charts.yml` and the `charts/` directory.
@@ -72,7 +120,7 @@ naming convention.
 - `models/bronze/`: Fivetran source contract only (`sources.yml`)
 - `models/silver/`: typed and cleaned source records (`stg_games`)
 - `models/gold/`: conformed dimensions, facts, and reusable intermediate
-	analytics (`dim_game`, `fct_games`, `dim_*`, `int_*`)
+	analytics (`dim_game`, `fct_games`, `int_*`)
 - `models/plat/`: stakeholder-facing marts (`mart_*`) consumed by dashboards
 
 The layer schemas are `analytics_silver`, `analytics_gold`, and
@@ -84,8 +132,8 @@ Core models:
 - `stg_games`: typed and cleaned source records in silver
 - `dim_game`: one row per game containing descriptive attributes in gold
 - `fct_games`: one row per game with release year and monetization type in gold
-- `dim_genre_performance`: genre-level ratings, popularity, and pricing
-- `dim_developer_benchmarks`: developer portfolio benchmarks
+- `mart_genre_performance`: genre-level ratings, popularity, size, and pricing
+- `mart_developer_benchmarks`: developer portfolio benchmarks
 - `int_release_trends`: year-over-year release trends by genre
 - `mart_monetization_mix`: free versus paid mix for Q1
 - `mart_price_distribution`: price buckets for Q5
