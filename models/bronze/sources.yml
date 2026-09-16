@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: mobile_games
+    description: Raw mobile game catalog replicated by Fivetran from Xom Dataset SQL Server.
+    database: "{{ env_var('SUPABASE_DB', 'postgres') }}"
+    schema: "{{ env_var('FIVETRAN_SCHEMA', 'mobile_games') }}"
+    tables:
+      - name: games
+        description: App Store game catalog snapshot from Xom Arcade.
+        columns:
+          - name: app_id
+            description: App Store identifier.
+            tests:
+              - not_null
+              - unique
+          - name: release_date
+            tests:
+              - not_null

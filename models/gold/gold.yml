@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: dim_game
+    description: One row per usable App Store game containing descriptive dimensions.
+    columns:
+      - name: app_id
+        tests:
+          - not_null
+          - unique
+      - name: game_name
+        tests:
+          - not_null
+  - name: fct_games
+    description: One row per usable App Store game containing numeric performance measures.
+    columns:
+      - name: app_id
+        tests:
+          - not_null
+          - unique
+      - name: release_year
+        tests:
+          - not_null
+      - name: monetization_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['free', 'paid']
+  - name: int_release_trends
+    description: Year-over-year release trends by genre.

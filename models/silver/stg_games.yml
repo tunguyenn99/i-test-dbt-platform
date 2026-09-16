@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_games
+    description: Cleaned and typed App Store game catalog records.
+    columns:
+      - name: app_id
+        tests:
+          - not_null
+          - unique
+      - name: game_name
+        tests:
+          - not_null
+      - name: monetization_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['free', 'paid']
+      - name: language_count
+        tests:
+          - not_null

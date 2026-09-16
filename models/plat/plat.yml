@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: mart_genre_performance
+    description: Rating, popularity, size, and monetization benchmarks by genre.
+    columns:
+      - name: primary_genre
+        tests:
+          - not_null
+  - name: mart_developer_benchmarks
+    description: Portfolio and popularity benchmarks by developer.
+    columns:
+      - name: developer
+        tests:
+          - not_null
+  - name: mart_monetization_mix
+    description: Free versus paid catalog mix and review benchmarks for Q1.
+  - name: mart_price_distribution
+    description: Catalog price buckets and shares for Q5.
+  - name: mart_games_2019
+    description: Games released in 2019 grouped by primary genre for Q4.
+  - name: mart_age_rating_genre
+    description: Game count matrix by age rating and primary genre for Q7.
+  - name: mart_genre_language_benchmarks
+    description: Average supported language count by genre for Q9.
+  - name: mart_high_rated_games
+    description: Top-rated games with at least 100 reviews for Q6.
+  - name: mart_top_games_by_genre
+    description: Top three rated games per genre with at least 100 reviews for Q11.
+  - name: mart_developer_consistency
+    description: Developer rating consistency for portfolios with at least three games and three rated games for Q13.
+  - name: mart_size_rating_buckets
+    description: Rating benchmarks for small, medium, and large games for Q14.
+  - name: mart_genre_tags
+    description: Top 15 multi-valued genre tags by distinct game count for Q15.
+  - name: mart_description_search
+    description: Search-ready game descriptions and ranking fields for Q10.
+  - name: mart_release_yearly
+    description: Annual release volume, ratings, and year-over-year growth for Q12.
