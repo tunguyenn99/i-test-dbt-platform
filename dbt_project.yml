@@ -1,0 +1,27 @@
+name: xom_arcade
+version: '1.0.0'
+config-version: 2
+
+profile: xom_arcade
+
+model-paths: [models]
+analysis-paths: [analyses]
+macro-paths: [macros]
+seed-paths: [seeds]
+snapshot-paths: [snapshots]
+test-paths: [tests]
+clean-targets:
+  - target
+  - dbt_packages
+
+models:
+  xom_arcade:
+    silver:
+      +materialized: view
+      +schema: silver
+    gold:
+      +materialized: table
+      +schema: gold
+    plat:
+      +materialized: table
+      +schema: plat
