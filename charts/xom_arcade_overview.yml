@@ -1,0 +1,119 @@
+title: Xom Arcade Overview
+notes: >
+  Mobile game market research board built on dbt marts. Ratings and review
+  counts describe catalog popularity; price describes monetization type.
+source: analytics
+
+queries:
+  catalog_kpis:
+    sql: |
+      select
+        count(*) as game_count,
+        round(avg(average_user_rating), 2) as average_rating,
+        sum(user_rating_count) as total_rating_count
+      from analytics_gold.fct_games
+
+  genre_performance:
+    sql: |
+      select
+        primary_genre,
+        game_count,
+        average_rating,
+        total_rating_count,
+        average_price_usd
+      from analytics_plat.mart_genre_performance
+      where primary_genre is not null
+      order by total_rating_count desc
+
+  release_trends:
+    sql: |
+      select
+        release_year,
+        primary_genre,
+        game_count
+      from analytics_gold.int_release_trends
+      where release_year is not null
+      order by release_year, primary_genre
+
+  top_developers:
+    sql: |
+      select
+        developer,
+        game_count,
+        average_rating,
+        total_rating_count
+      from analytics_plat.mart_developer_benchmarks
+      where developer is not null
+      order by total_rating_count desc
+      limit 15
+
+charts:
+  game_count_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Games in catalog
+    value: game_count
+    style:
+      value:
+        format: integer
+
+  average_rating_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Average user rating
+    value: average_rating
+    style:
+      value:
+        format: number
+
+  total_reviews_kpi:
+    type: kpi
+    query: catalog_kpis
+    label: Total review count
+    value: total_rating_count
+    style:
+      value:
+        format: integer
+
+  genre_rating:
+    type: bar
+    query: genre_performance
+    title: Average rating by genre
+    x: primary_genre
+    y: average_rating
+
+  genre_popularity:
+    type: bar
+    query: genre_performance
+    title: Review count by genre
+    x: primary_genre
+    y: total_rating_count
+    style:
+      number_format: integer
+
+  release_trend:
+    type: line
+    query: release_trends
+    title: Releases by year and genre
+    x: release_year
+    y: game_count
+    color: primary_genre
+
+  developer_table:
+    type: table
+    query: top_developers
+    title: Top developers by review count
+    style:
+      columns:
+        game_count:
+          format: integer
+        average_rating:
+          format: number
+        total_rating_count:
+          format: integer
+
+rows:
+  - cols: [game_count_kpi, average_rating_kpi, total_reviews_kpi]
+  - cols: [genre_rating, genre_popularity]
+  - release_trend
+  - developer_table
