@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.venv/
+target/
+dbt_packages/
+logs/
+__pycache__/
+.DS_Store
+renders/
+*.duckdb
