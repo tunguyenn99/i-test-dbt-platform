@@ -1,0 +1,508 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 920" width="1600" height="920" role="img" aria-labelledby="title desc">
+  <title id="title">Xom Arcade Analytics Platform Architecture</title>
+  <desc id="desc">Modern Data Stack architecture diagram illustrating data flow from SQL Server through Fivetran into Supabase Postgres, transformed via dbt Core medallion layers, and visualized with dbt Charts and dbt Docs.</desc>
+
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#0b1120" />
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="card-surface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+    <linearGradient id="card-inner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#111827" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Header Gradient -->
+    <linearGradient id="title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <!-- Accent Gradients -->
+    <linearGradient id="sql-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+    <linearGradient id="fivetran-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="supabase-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="dbt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7a59" />
+      <stop offset="100%" stop-color="#e04e28" />
+    </linearGradient>
+    <linearGradient id="charts-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="docs-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <!-- Layer Gradients -->
+    <linearGradient id="bronze-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="silver-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#64748b" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="plat-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="glow-sql" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#ef4444" flood-opacity="0.25" />
+    </filter>
+    <filter id="glow-fivetran" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.25" />
+    </filter>
+    <filter id="glow-supabase" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#10b981" flood-opacity="0.25" />
+    </filter>
+    <filter id="glow-dbt" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#ff7a59" flood-opacity="0.25" />
+    </filter>
+    <filter id="glow-medallion" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0284c7" flood-opacity="0.18" />
+    </filter>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+
+    <!-- Arrow Marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ff7a59" />
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#818cf8" />
+    </marker>
+
+    <!-- Patterns -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.75" stroke-opacity="0.4" />
+    </pattern>
+
+    <style>
+      .font-sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .badge-text { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+      .card-title { font-size: 19px; font-weight: 700; fill: #f8fafc; }
+      .card-sub { font-size: 13px; font-weight: 500; fill: #94a3b8; }
+      .body-detail { font-size: 12px; fill: #cbd5e1; }
+      .code-font { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; fill: #38bdf8; }
+      .flow-label { font-size: 11px; font-weight: 700; fill: #7dd3fc; letter-spacing: 0.04em; }
+    </style>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1600" height="920" fill="url(#bg-grad)" />
+  <rect width="1600" height="920" fill="url(#grid)" />
+
+  <!-- Ambient Light Orbs -->
+  <circle cx="150" cy="180" r="160" fill="#ef4444" opacity="0.05" />
+  <circle cx="560" cy="220" r="180" fill="#3b82f6" opacity="0.05" />
+  <circle cx="970" cy="220" r="180" fill="#10b981" opacity="0.05" />
+  <circle cx="1380" cy="220" r="180" fill="#ff7a59" opacity="0.07" />
+  <circle cx="800" cy="540" r="280" fill="#6366f1" opacity="0.04" />
+
+  <!-- ==================== HEADER ==================== -->
+  <g class="font-sans" transform="translate(60, 42)">
+    <!-- Category Pill -->
+    <rect x="0" y="0" width="276" height="26" rx="13" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <circle cx="14" cy="13" r="5" fill="#10b981" />
+    <text x="28" y="17" class="badge-text" fill="#38bdf8">END-TO-END DATA PLATFORM</text>
+
+    <!-- Main Title -->
+    <text x="0" y="58" font-size="32" font-weight="800" fill="url(#title-grad)" letter-spacing="-0.02em">
+      Xom Arcade Analytics Platform Architecture
+    </text>
+    <!-- Subtitle -->
+    <text x="0" y="84" font-size="15" font-weight="400" fill="#94a3b8">
+      Automated Ingestion (Fivetran) · Cloud Warehousing (Supabase Postgres) · Medallion Transformations (dbt Core) · Analytics &amp; Governance (dbt Charts &amp; Docs)
+    </text>
+  </g>
+
+  <!-- ==================== STEP 1: SQL SERVER ==================== -->
+  <g class="font-sans" transform="translate(60, 150)" filter="url(#glow-sql)">
+    <!-- Outer Card -->
+    <rect width="280" height="215" rx="16" fill="url(#card-surface)" stroke="#334155" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 264 0 Q 280 0 280 16 L 280 34 L 0 34 Z" fill="#1e293b" opacity="0.6" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="105" height="18" rx="9" fill="#7f1d1d" />
+    <text x="23" y="22" class="badge-text" fill="#fca5a5">1. SOURCE (OLTP)</text>
+
+    <!-- LOGO: Microsoft SQL Server (Official Red Tiered Cylinder) -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#2d1215" stroke="#ef4444" stroke-width="1.5" />
+      <g transform="translate(10, 8)">
+        <!-- Cylinder 1 (Top) -->
+        <ellipse cx="12" cy="5" rx="11" ry="3.5" fill="#f87171" />
+        <path d="M 1 5 v 5 c 0 2 5 3.5 11 3.5 s 11 -1.5 11 -3.5 v -5 Z" fill="#dc2626" />
+        <ellipse cx="12" cy="10" rx="11" ry="3" fill="#ef4444" />
+        <!-- Cylinder 2 (Middle) -->
+        <path d="M 1 11 v 5 c 0 2 5 3.5 11 3.5 s 11 -1.5 11 -3.5 v -5 Z" fill="#b91c1c" />
+        <ellipse cx="12" cy="16" rx="11" ry="3" fill="#dc2626" />
+        <!-- Cylinder 3 (Bottom) -->
+        <path d="M 1 17 v 6 c 0 2 5 3.5 11 3.5 s 11 -1.5 11 -3.5 v -6 Z" fill="#991b1b" />
+        <ellipse cx="12" cy="23" rx="11" ry="3" fill="#b91c1c" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">SQL Server</text>
+    <text x="72" y="86" class="card-sub">Xom Arcade Database</text>
+
+    <!-- Divider -->
+    <line x1="16" y1="104" x2="264" y2="104" stroke="#334155" stroke-dasharray="3 3" />
+
+    <!-- Details Box -->
+    <rect x="14" y="114" width="252" height="86" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="133" class="body-detail">📁 Source Table:</text>
+    <text x="110" y="133" class="code-font">mobile_games.games</text>
+    <text x="24" y="153" class="body-detail">📊 Dataset Size: 17,007 rows · 16 cols</text>
+    <text x="24" y="173" class="body-detail">🎮 Domain: Ratings, Genres, Pricing</text>
+    <text x="24" y="191" class="body-detail">🔒 Security: Isolated read-only replica</text>
+  </g>
+
+  <!-- Flow 1: SQL Server to Fivetran -->
+  <g class="font-sans">
+    <path d="M 340 255 L 415 255" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="5 3" marker-end="url(#arrowhead)" />
+    <rect x="345" y="222" width="65" height="20" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+    <text x="377" y="236" text-anchor="middle" class="flow-label">CDC EXTRACT</text>
+  </g>
+
+  <!-- ==================== STEP 2: FIVETRAN ==================== -->
+  <g class="font-sans" transform="translate(425, 150)" filter="url(#glow-fivetran)">
+    <!-- Outer Card -->
+    <rect width="280" height="215" rx="16" fill="url(#card-surface)" stroke="#334155" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 264 0 Q 280 0 280 16 L 280 34 L 0 34 Z" fill="#1e293b" opacity="0.6" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="130" height="18" rx="9" fill="#1e3a8a" />
+    <text x="23" y="22" class="badge-text" fill="#93c5fd">2. DATA PIPELINE (EL)</text>
+
+    <!-- LOGO: Fivetran (Official Blue Geometric Double-F) -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#0c2340" stroke="#3b82f6" stroke-width="1.5" />
+      <g transform="translate(10, 10)">
+        <!-- Left Pillar -->
+        <rect x="2" y="2" width="6" height="20" rx="2" fill="#0073ff" />
+        <!-- Top Bar & Hook -->
+        <path d="M 11 2 h 11 a 2 2 0 0 1 2 2 v 5 a 2 2 0 0 1 -2 2 h -5 v 9 a 2 2 0 0 1 -2 2 h -2 a 2 2 0 0 1 -2 -2 Z" fill="#0073ff" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">Fivetran</text>
+    <text x="72" y="86" class="card-sub">Automated Replication</text>
+
+    <!-- Divider -->
+    <line x1="16" y1="104" x2="264" y2="104" stroke="#334155" stroke-dasharray="3 3" />
+
+    <!-- Details Box -->
+    <rect x="14" y="114" width="252" height="86" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="133" class="body-detail">🔄 Connector: SQL Server Source</text>
+    <text x="24" y="153" class="body-detail">⚡ Sync Mode: Scheduled &amp; Incremental</text>
+    <text x="24" y="173" class="body-detail">🛡️ Schema Drift: Auto-handled</text>
+    <text x="24" y="191" class="body-detail">⏱️ Reliability: 99.9% uptime SLA</text>
+  </g>
+
+  <!-- Flow 2: Fivetran to Supabase -->
+  <g class="font-sans">
+    <path d="M 705 255 L 780 255" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="5 3" marker-end="url(#arrowhead)" />
+    <rect x="712" y="222" width="62" height="20" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+    <text x="743" y="236" text-anchor="middle" class="flow-label">LOAD (IPv4)</text>
+  </g>
+
+  <!-- ==================== STEP 3: SUPABASE POSTGRESQL ==================== -->
+  <g class="font-sans" transform="translate(790, 150)" filter="url(#glow-supabase)">
+    <!-- Outer Card -->
+    <rect width="320" height="215" rx="16" fill="url(#card-surface)" stroke="#334155" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 304 0 Q 320 0 320 16 L 320 34 L 0 34 Z" fill="#1e293b" opacity="0.6" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="135" height="18" rx="9" fill="#064e3b" />
+    <text x="23" y="22" class="badge-text" fill="#6ee7b7">3. CLOUD WAREHOUSE</text>
+
+    <!-- LOGO: Supabase Emerald Lightning Bolt -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#06291e" stroke="#10b981" stroke-width="1.5" />
+      <g transform="translate(8, 8)">
+        <path d="M 16.5 1.5 C 15.8 0.6 14.3 1.1 14.2 2.3 L 12.3 17.5 C 12.2 18.4 13.1 19.1 14 18.8 L 26.2 15 C 27.3 14.6 27.6 13.1 26.6 12.4 L 16.5 1.5 Z" fill="url(#supabase-grad)" />
+        <path d="M 8.5 24.5 C 9.2 25.4 10.7 24.9 10.8 23.7 L 12.7 8.5 C 12.8 7.6 11.9 6.9 11 7.2 L -1.2 11 C -2.3 11.4 -2.6 12.9 -1.6 13.6 L 8.5 24.5 Z" fill="#3ecf8e" opacity="0.75" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">Supabase</text>
+    <text x="72" y="86" class="card-sub">Managed Cloud PostgreSQL</text>
+
+    <!-- Divider -->
+    <line x1="16" y1="104" x2="304" y2="104" stroke="#334155" stroke-dasharray="3 3" />
+
+    <!-- Details Box -->
+    <rect x="14" y="114" width="292" height="86" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="133" class="body-detail">🐘 Engine: PostgreSQL 15+ (ACID)</text>
+    <text x="24" y="153" class="body-detail">🗄️ Database: <tspan class="code-font">postgres</tspan> · Schema: <tspan class="code-font">mobile_games</tspan></text>
+    <text x="24" y="173" class="body-detail">🔌 Pooling: Session Pooler (port 5432)</text>
+    <text x="24" y="191" class="body-detail">🌐 Dual Stack: Dedicated IPv4 endpoint</text>
+  </g>
+
+  <!-- Flow 3: Supabase to dbt Core -->
+  <g class="font-sans">
+    <path d="M 1110 255 L 1185 255" fill="none" stroke="#ff7a59" stroke-width="2.5" stroke-dasharray="5 3" marker-end="url(#arrowhead-orange)" />
+    <rect x="1118" y="222" width="62" height="20" rx="4" fill="#0f172a" stroke="#ff7a59" stroke-width="1" />
+    <text x="1149" y="236" text-anchor="middle" font-size="11" font-weight="700" fill="#ff7a59">dbt build</text>
+  </g>
+
+  <!-- ==================== STEP 4: DBT CORE ==================== -->
+  <g class="font-sans" transform="translate(1195, 150)" filter="url(#glow-dbt)">
+    <!-- Outer Card -->
+    <rect width="345" height="215" rx="16" fill="url(#card-surface)" stroke="#ff7a59" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 329 0 Q 345 0 345 16 L 345 34 L 0 34 Z" fill="#2c140d" opacity="0.8" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="135" height="18" rx="9" fill="#7c2d12" />
+    <text x="23" y="22" class="badge-text" fill="#fdba74">4. TRANSFORM (ELT)</text>
+
+    <!-- LOGO: dbt (Official Coral Isometric Cube) -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#2e140d" stroke="#ff7a59" stroke-width="1.5" />
+      <g transform="translate(9, 7)">
+        <!-- Outer Isometric Hexagon -->
+        <polygon points="13 1, 25 7.5, 25 20.5, 13 27, 1 20.5, 1 7.5" fill="#e04e28" />
+        <!-- Top Face -->
+        <polygon points="13 1, 25 7.5, 13 14, 1 7.5" fill="#ff876c" />
+        <!-- Left Face -->
+        <polygon points="1 7.5, 13 14, 13 27, 1 20.5" fill="#e04e28" />
+        <!-- Right Face -->
+        <polygon points="13 14, 25 7.5, 25 20.5, 13 27" fill="#ff694b" />
+        <!-- Inner Cube Cutout Motif -->
+        <polygon points="13 7, 19 10.5, 19 17.5, 13 21, 7 17.5, 7 10.5" fill="#2e140d" />
+        <polygon points="13 10, 16 12, 13 14, 10 12" fill="#ff876c" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">dbt Core v1.12</text>
+    <text x="72" y="86" class="card-sub">Data Transformation &amp; Testing</text>
+
+    <!-- Divider -->
+    <line x1="16" y1="104" x2="329" y2="104" stroke="#334155" stroke-dasharray="3 3" />
+
+    <!-- Details Box -->
+    <rect x="14" y="114" width="317" height="86" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="133" class="body-detail">⚙️ Adapter: <tspan class="code-font">dbt-postgres 1.11+</tspan></text>
+    <text x="24" y="153" class="body-detail">🧪 Testing: Schema tests &amp; singular assertions</text>
+    <text x="24" y="173" class="body-detail">🧩 Jinja Macros: <tspan class="code-font">clean_text</tspan>, <tspan class="code-font">safe_divide</tspan></text>
+    <text x="24" y="191" class="body-detail">📦 Architecture: 4-Layer Medallion Engine</text>
+  </g>
+
+  <!-- Flow connector from dbt Core down to Medallion Container -->
+  <path d="M 1367 365 L 1367 400" fill="none" stroke="#ff7a59" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrowhead-orange)" />
+
+  <!-- ==================== MEDALLION ARCHITECTURE CONTAINER ==================== -->
+  <g class="font-sans" transform="translate(60, 410)" filter="url(#glow-medallion)">
+    <!-- Container Shell -->
+    <rect width="1480" height="225" rx="20" fill="url(#card-surface)" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6" />
+
+    <!-- Container Header -->
+    <rect x="0" y="0" width="1480" height="40" rx="20" fill="#0369a1" opacity="0.25" />
+    <rect x="16" y="10" width="8" height="20" rx="4" fill="#38bdf8" />
+    <text x="32" y="25" font-size="14" font-weight="800" fill="#f8fafc" letter-spacing="0.05em">
+      dbt CORE MEDALLION DATA ARCHITECTURE (STORAGE &amp; MODEL LAYERS)
+    </text>
+    <text x="820" y="25" font-size="12" font-weight="500" fill="#94a3b8">
+      Layered transformation ensures data contract enforcement, business logic isolation, and high-performance BI queries
+    </text>
+
+    <!-- Layer 1: BRONZE (RAW / CONTRACT) -->
+    <g transform="translate(20, 52)">
+      <rect width="335" height="152" rx="12" fill="url(#card-inner)" stroke="#d97706" stroke-width="1.2" />
+      <rect x="0" y="0" width="335" height="28" rx="12" fill="url(#bronze-grad)" opacity="0.9" />
+      <text x="14" y="19" font-size="12" font-weight="800" fill="#ffffff" letter-spacing="0.05em">BRONZE LAYER · SOURCE CONTRACT</text>
+
+      <text x="16" y="52" font-size="14" font-weight="700" fill="#f8fafc">models/bronze/sources.yml</text>
+      <text x="16" y="70" class="code-font">mobile_games.games (Raw Ingest)</text>
+
+      <line x1="16" y1="80" x2="319" y2="80" stroke="#334155" />
+      <text x="16" y="98" class="body-detail">• Declares raw external tables from Fivetran</text>
+      <text x="16" y="116" class="body-detail">• Strict source schema &amp; column tests</text>
+      <text x="16" y="134" class="body-detail">• Zero transformation; preserves raw audit trail</text>
+    </g>
+
+    <!-- Arrow 1: Bronze -> Silver -->
+    <path d="M 363 128 L 387 128" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrowhead)" />
+
+    <!-- Layer 2: SILVER (CLEANED / STAGED) -->
+    <g transform="translate(395, 52)">
+      <rect width="335" height="152" rx="12" fill="url(#card-inner)" stroke="#94a3b8" stroke-width="1.2" />
+      <rect x="0" y="0" width="335" height="28" rx="12" fill="url(#silver-grad)" opacity="0.9" />
+      <text x="14" y="19" font-size="12" font-weight="800" fill="#0f172a" letter-spacing="0.05em">SILVER LAYER · STAGING &amp; CLEANSING</text>
+
+      <text x="16" y="52" font-size="14" font-weight="700" fill="#f8fafc">models/silver/stg_games.sql</text>
+      <text x="16" y="70" class="code-font">stg_games (View materialization)</text>
+
+      <line x1="16" y1="80" x2="319" y2="80" stroke="#334155" />
+      <text x="16" y="98" class="body-detail">• Trims strings &amp; standardizes empty text to NULL</text>
+      <text x="16" y="116" class="body-detail">• Casts size to MB, prices to numeric, dates to DATE</text>
+      <text x="16" y="134" class="body-detail">• Parses language lists &amp; derives monetization flags</text>
+    </g>
+
+    <!-- Arrow 2: Silver -> Gold -->
+    <path d="M 738 128 L 762 128" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrowhead)" />
+
+    <!-- Layer 3: GOLD (CORE STAR-SCHEMA) -->
+    <g transform="translate(770, 52)">
+      <rect width="335" height="152" rx="12" fill="url(#card-inner)" stroke="#f59e0b" stroke-width="1.2" />
+      <rect x="0" y="0" width="335" height="28" rx="12" fill="url(#gold-grad)" opacity="0.9" />
+      <text x="14" y="19" font-size="12" font-weight="800" fill="#0f172a" letter-spacing="0.05em">GOLD LAYER · CORE STAR SCHEMA</text>
+
+      <text x="16" y="52" font-size="14" font-weight="700" fill="#f8fafc">models/gold/ (dim / fct)</text>
+      <text x="16" y="70" class="code-font">dim_game · fct_games · int_release_trends</text>
+
+      <line x1="16" y1="80" x2="319" y2="80" stroke="#334155" />
+      <text x="16" y="98" class="body-detail">• <tspan font-weight="700">dim_game</tspan>: App descriptive dimensions</text>
+      <text x="16" y="116" class="body-detail">• <tspan font-weight="700">fct_games</tspan>: Numeric metrics (ratings, size, price)</text>
+      <text x="16" y="134" class="body-detail">• Single grain: Unique 1-row-per-app constraint</text>
+    </g>
+
+    <!-- Arrow 3: Gold -> Platinum -->
+    <path d="M 1113 128 L 1137 128" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrowhead)" />
+
+    <!-- Layer 4: PLATINUM (ANALYTICAL MARTS) -->
+    <g transform="translate(1145, 52)">
+      <rect width="315" height="152" rx="12" fill="url(#card-inner)" stroke="#8b5cf6" stroke-width="1.2" />
+      <rect x="0" y="0" width="315" height="28" rx="12" fill="url(#plat-grad)" opacity="0.9" />
+      <text x="14" y="19" font-size="12" font-weight="800" fill="#ffffff" letter-spacing="0.05em">PLATINUM LAYER · BUSINESS MARTS</text>
+
+      <text x="16" y="52" font-size="14" font-weight="700" fill="#f8fafc">models/plat/mart_*.sql</text>
+      <text x="16" y="70" class="code-font">14 Business-Ready Analytics Marts</text>
+
+      <line x1="16" y1="80" x2="299" y2="80" stroke="#334155" />
+      <text x="16" y="98" class="body-detail">• Specialized for business requirements Q1–Q15</text>
+      <text x="16" y="116" class="body-detail">• Genre performance, dev benchmarks, ratings</text>
+      <text x="16" y="134" class="body-detail">• Pre-aggregated for zero-latency dashboard queries</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Platinum to Downstream Tools -->
+  <g class="font-sans">
+    <path d="M 1300 635 L 1300 660 L 415 660 L 415 675" fill="none" stroke="#818cf8" stroke-width="2.5" marker-end="url(#arrowhead-purple)" />
+    <path d="M 1300 635 L 1300 660 L 1185 660 L 1185 675" fill="none" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowhead)" />
+  </g>
+
+  <!-- ==================== STEP 5: DBT CHARTS (BI & DASHBOARDS) ==================== -->
+  <g class="font-sans" transform="translate(60, 680)" filter="url(#card-shadow)">
+    <!-- Outer Card -->
+    <rect width="710" height="155" rx="16" fill="url(#card-surface)" stroke="#818cf8" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 694 0 Q 710 0 710 16 L 710 34 L 0 34 Z" fill="#312e81" opacity="0.6" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="135" height="18" rx="9" fill="#4338ca" />
+    <text x="23" y="22" class="badge-text" fill="#c7d2fe">5. ANALYTICS &amp; BI</text>
+
+    <!-- LOGO: dbt Charts (Chart Dashboard Bars) -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5" />
+      <g transform="translate(9, 9)">
+        <!-- Bar Chart Icons -->
+        <rect x="2" y="16" width="4" height="10" rx="1" fill="#818cf8" />
+        <rect x="8" y="9" width="4" height="17" rx="1" fill="#a5b4fc" />
+        <rect x="14" y="4" width="4" height="22" rx="1" fill="#c7d2fe" />
+        <rect x="20" y="12" width="4" height="14" rx="1" fill="#6366f1" />
+        <!-- Trend Line -->
+        <path d="M 4 14 L 10 7 L 16 3 L 22 10" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">dbt Charts</text>
+    <text x="72" y="86" class="card-sub">Interactive Declarative Semantic BI Dashboards</text>
+
+    <!-- Content Columns -->
+    <rect x="14" y="104" width="335" height="40" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="122" font-size="12" font-weight="700" fill="#f8fafc">📊 Executive Overview Board</text>
+    <text x="24" y="136" class="code-font">charts/xom_arcade_overview.yml</text>
+
+    <rect x="360" y="104" width="335" height="40" rx="8" fill="url(#card-inner)" />
+    <text x="370" y="122" font-size="12" font-weight="700" fill="#f8fafc">🔬 Deep Research Board (Q1–Q15)</text>
+    <text x="370" y="136" class="code-font">charts/xom_arcade_research.yml (4 Tabs)</text>
+  </g>
+
+  <!-- ==================== STEP 6: DBT DOCS (CATALOG & GOVERNANCE) ==================== -->
+  <g class="font-sans" transform="translate(830, 680)" filter="url(#card-shadow)">
+    <!-- Outer Card -->
+    <rect width="710" height="155" rx="16" fill="url(#card-surface)" stroke="#06b6d4" stroke-width="1.5" />
+    <!-- Header bar -->
+    <path d="M 0 16 Q 0 0 16 0 L 694 0 Q 710 0 710 16 L 710 34 L 0 34 Z" fill="#164e63" opacity="0.6" />
+    <!-- Tag -->
+    <rect x="14" y="9" width="165" height="18" rx="9" fill="#0891b2" />
+    <text x="23" y="22" class="badge-text" fill="#cffafe">6. METADATA &amp; LINEAGE</text>
+
+    <!-- LOGO: dbt Docs (Book / DAG Network) -->
+    <g transform="translate(18, 48)">
+      <rect width="44" height="44" rx="10" fill="#083344" stroke="#06b6d4" stroke-width="1.5" />
+      <g transform="translate(9, 9)">
+        <!-- Connected Nodes (DAG) -->
+        <circle cx="5" cy="13" r="3" fill="#22d3ee" />
+        <circle cx="15" cy="5" r="3" fill="#38bdf8" />
+        <circle cx="15" cy="21" r="3" fill="#38bdf8" />
+        <circle cx="23" cy="13" r="3.5" fill="#67e8f9" />
+        <line x1="7" y1="11" x2="13" y2="7" stroke="#22d3ee" stroke-width="1.5" />
+        <line x1="7" y1="15" x2="13" y2="19" stroke="#22d3ee" stroke-width="1.5" />
+        <line x1="17" y1="7" x2="21" y2="11" stroke="#38bdf8" stroke-width="1.5" />
+        <line x1="17" y1="19" x2="21" y2="15" stroke="#38bdf8" stroke-width="1.5" />
+      </g>
+    </g>
+
+    <!-- Title & Subtitle -->
+    <text x="72" y="68" class="card-title">dbt Docs</text>
+    <text x="72" y="86" class="card-sub">Data Catalog, Interactive Lineage DAG &amp; Column Dictionaries</text>
+
+    <!-- Content Columns -->
+    <rect x="14" y="104" width="335" height="40" rx="8" fill="url(#card-inner)" />
+    <text x="24" y="122" font-size="12" font-weight="700" fill="#f8fafc">🕸️ Visual Dependency Graph (DAG)</text>
+    <text x="24" y="136" class="code-font">dbt docs generate · lineage tracing</text>
+
+    <rect x="360" y="104" width="335" height="40" rx="8" fill="url(#card-inner)" />
+    <text x="370" y="122" font-size="12" font-weight="700" fill="#f8fafc">📖 Interactive Data Catalog</text>
+    <text x="370" y="136" class="code-font">dbt docs serve --port 8080</text>
+  </g>
+
+  <!-- ==================== FOOTER ==================== -->
+  <g class="font-sans" transform="translate(60, 875)">
+    <rect width="1480" height="32" rx="8" fill="#111827" stroke="#1f2937" stroke-width="1" />
+    <text x="24" y="21" font-size="12" fill="#94a3b8">
+      🔒 <tspan font-weight="700" fill="#f8fafc">Security &amp; Secrets:</tspan> Production credentials managed strictly via local environment variables (<tspan class="code-font">.env</tspan>), excluded from version control.
+    </text>
+    <text x="1050" y="21" font-size="12" fill="#94a3b8">
+      ✅ <tspan font-weight="700" fill="#f8fafc">Data Quality:</tspan> 11+ Automated tests, unique grain &amp; financial reconciliation assertions.
+    </text>
+  </g>
+</svg>

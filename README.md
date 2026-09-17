@@ -1,21 +1,44 @@
 # Xom Arcade Analytics Platform
 
-End-to-end ELT project for the Xom Arcade mobile game catalog:
+[English](README.md) | [Tiếng Việt](README.vi.md)
 
-1. Xom Dataset SQL Server is the OLTP source.
-2. Fivetran replicates `mobile_games.games` into Supabase Postgres.
-3. dbt Core cleans the raw table and builds analytical marts for genre,
-	developer, and release-trend reporting.
+![Project architecture](images/project-architecture.svg)
+
+End-to-end ELT modern data stack project for the Xom Arcade mobile game catalog:
+
+1. **Source**: Xom Dataset Microsoft SQL Server is the production OLTP source.
+2. **Replication**: Fivetran replicates `mobile_games.games` into Supabase PostgreSQL.
+3. **Transformation**: dbt Core cleans the raw data and builds conformed dimensional models and analytical marts for genre, developer, and release-trend reporting following the **Medallion Architecture** (Bronze &rarr; Silver &rarr; Gold &rarr; Platinum).
+4. **Analytics & BI**: dbt Charts powers interactive semantic dashboards answering stakeholder requirements (Q1 through Q15).
+5. **Governance**: dbt Docs generates interactive data catalogs and lineage graphs.
+
+## Repository Structure
+
+| Directory | Purpose & Documentation |
+| :--- | :--- |
+| [`models/`](models/README.md) | Medallion architecture transformation layers: |
+| &emsp;├─ [`bronze/`](models/bronze/README.md) | Source table declarations and schema contracts (`sources.yml`). |
+| &emsp;├─ [`silver/`](models/silver/README.md) | Staging layer cleaning, casting, and feature extraction (`stg_games.sql`). |
+| &emsp;├─ [`gold/`](models/gold/README.md) | Dimensional star-schema: `dim_game`, `fct_games`, and `int_release_trends`. |
+| &emsp;└─ [`plat/`](models/plat/README.md) | 14 curated analytical marts answering business questions Q1&ndash;Q15. |
+| [`charts/`](charts/README.md) | dbt Charts configuration and dashboard definitions (`overview` & `research`). |
+| [`scripts/`](scripts/README.md) | Database provisioning scripts (`supabase_fivetran_setup.sql`) and setup runbooks. |
+| [`images/`](images/README.md) | Architecture vector graphics and verification walkthrough screenshots. |
+| [`macros/`](macros/README.md) | Modular Jinja helpers: `clean_text`, `count_delimited_values`, `safe_divide`. |
+| [`tests/`](tests/README.md) | Automated data quality suite: schema tests & 8 custom singular assertions. |
+| [`analyses/`](analyses/README.md) | Ad-hoc analytical SQL queries compiled by dbt. |
+| [`seeds/`](seeds/README.md) | Static, version-controlled reference CSV files. |
+| [`snapshots/`](snapshots/README.md) | Type-2 Slowly Changing Dimension (SCD) definitions. |
 
 ## Prerequisites
 
 - Python 3.10+
-- `uv` for Python and CLI tooling
-- A configured Fivetran connector and Supabase project
+- `uv` for fast Python and CLI tool management
+- Configured Fivetran connector and Supabase PostgreSQL project
 
-## Local setup
+## Local Setup
 
-1. Create the environment and install dbt Core:
+1. Create the virtual environment and install dependencies:
 
 ```sh
 uv python install 3.12
@@ -24,12 +47,10 @@ uv pip install --python .venv/bin/python dbt-postgres
 uv tool install dbt-charts
 ```
 
-2. Copy `.env.example` to `.env` and fill in the credentials. A local `.env`
-	is already ignored by Git.
-3. Run `scripts/supabase_fivetran_setup.sql` while connected to the existing
-	Supabase `postgres` database. Do not create a separate destination database.
+2. Copy `.env.example` to `.env` and fill in credentials. A local `.env` is ignored by Git.
+3. Run `scripts/supabase_fivetran_setup.sql` while connected to the default Supabase `postgres` database.
 4. Configure Fivetran using `scripts/fivetran_source_setup.md`.
-5. After the first Fivetran sync, run:
+5. After the initial Fivetran sync, build and test all models:
 
 ```sh
 set -a
@@ -39,12 +60,11 @@ DBT_PROFILES_DIR="$PWD" dbt debug
 DBT_PROFILES_DIR="$PWD" dbt build
 ```
 
-## Visual walkthrough
+## Visual Walkthrough
 
-### 1. Configure the source
+### 1. Configure the Source
 
-The source is the Xom Dataset SQL Server database and the replicated table is
-`mobile_games.games`.
+The source is the Xom Dataset Microsoft SQL Server database replicating `mobile_games.games`.
 
 ![SQL Server source setup](images/source-sql-server-setup.png)
 
@@ -52,10 +72,9 @@ The source is the Xom Dataset SQL Server database and the replicated table is
 
 ![Fivetran source sync result](images/source-sql-server-sync-result.png)
 
-### 2. Configure the destination
+### 2. Configure the Destination
 
-Fivetran writes to the existing Supabase `postgres` database using the
-`mobile_games` schema and the IPv4-compatible Session Pooler connection.
+Fivetran writes to the Supabase `postgres` database under the `mobile_games` schema using the IPv4-compatible Session Pooler connection.
 
 ![Supabase destination schema](images/dest-postgres-schema.png)
 
@@ -63,8 +82,7 @@ Fivetran writes to the existing Supabase `postgres` database using the
 
 ### 3. Explore dbt Charts
 
-The project contains a full research board with Executive, Market and
-Portfolio, Quality and Trends, and Search tabs.
+The platform includes an Executive Overview and a 4-tab Research Board (Executive, Market & Portfolio, Quality & Trends, Search & Discovery).
 
 ![dbt Charts project directory](images/dct-directory.png)
 
@@ -78,7 +96,7 @@ Portfolio, Quality and Trends, and Search tabs.
 
 ### 4. Generate dbt Docs
 
-Generate and serve the model catalog and lineage documentation with:
+Generate and serve the interactive data catalog and lineage graph:
 
 ```sh
 DBT_PROFILES_DIR="$PWD" dbt docs generate
@@ -87,13 +105,9 @@ DBT_PROFILES_DIR="$PWD" dbt docs serve --port 8080
 
 ![Generated dbt Docs](images/dbt-docs-generate.png)
 
-## dbt Charts
+## dbt Charts Usage
 
-`dct init --yes` initialized `dbt_charts.yml` and the `charts/` directory.
-The main board is `charts/xom_arcade_overview.yml` and reads the dbt marts
-through the `analytics` dbt profile source.
-
-Validate and render the boards:
+Initialize and preview dashboards locally:
 
 ```sh
 dct validate charts/
@@ -104,45 +118,15 @@ DBT_PROFILES_DIR="$PWD" dct render charts/xom_arcade_overview.yml --format termi
 dct serve
 ```
 
-`dct serve` provides a local browser URL for the live board preview.
+Access the live board preview in your browser at `http://localhost:3000`.
 
-For Supabase connections from Fivetran or IPv4-only environments, use the
-Session Pooler endpoint and the project-qualified username documented in
-`scripts/fivetran_source_setup.md`. The Direct `db...supabase.co` endpoint can
-fail at DNS or timeout when the client has no IPv6 connectivity.
+## Testing & Data Integrity
 
-Silver views are created in `analytics_silver`, gold dimensions/facts in
-`analytics_gold`, and plat marts in `analytics_plat` by dbt's custom schema
-naming convention.
+Run the automated test suite covering primary key uniqueness, metric domain ranges, and reconciliation balances:
 
-## Models
-
-- `models/bronze/`: Fivetran source contract only (`sources.yml`)
-- `models/silver/`: typed and cleaned source records (`stg_games`)
-- `models/gold/`: conformed dimensions, facts, and reusable intermediate
-	analytics (`dim_game`, `fct_games`, `int_*`)
-- `models/plat/`: stakeholder-facing marts (`mart_*`) consumed by dashboards
-
-The layer schemas are `analytics_silver`, `analytics_gold`, and
-`analytics_plat`. Bronze is metadata for the replicated `mobile_games` source,
-so it does not create a warehouse relation.
-
-Core models:
-
-- `stg_games`: typed and cleaned source records in silver
-- `dim_game`: one row per game containing descriptive attributes in gold
-- `fct_games`: one row per game with release year and monetization type in gold
-- `mart_genre_performance`: genre-level ratings, popularity, size, and pricing
-- `mart_developer_benchmarks`: developer portfolio benchmarks
-- `int_release_trends`: year-over-year release trends by genre
-- `mart_monetization_mix`: free versus paid mix for Q1
-- `mart_price_distribution`: price buckets for Q5
-- `mart_games_2019`: 2019 releases by genre for Q4
-- `mart_age_rating_genre`: age-rating by genre matrix for Q7
-- `mart_genre_language_benchmarks`: localization breadth for Q9
-- `mart_high_rated_games` and `mart_top_games_by_genre`: Q6/Q11 rankings
-- `mart_developer_consistency`: portfolio quality for Q13
-- `mart_size_rating_buckets`: size versus rating comparison for Q14
-- `mart_genre_tags`: multi-valued genre tag ranking for Q15
-- `mart_description_search`: parameter-ready description search for Q10
-- `mart_release_yearly`: annual release trend for Q12
+```sh
+set -a
+. ./.env
+set +a
+DBT_PROFILES_DIR="$PWD" dbt test
+```
